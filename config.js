@@ -1,1 +1,1 @@
-exports.clipath = "path.resolve('../h3_caladm/dist'))";
+exports.clipath = "../h3_caladm/dist";

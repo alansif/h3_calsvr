@@ -5,6 +5,9 @@ const bodyParser = require("body-parser");
 const app = express();
 const port = 8195;
 
+const config = require('./config');
+app.use(express.static(path.resolve(config.clipath)));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -31,9 +34,12 @@ const query = util.promisify(conn.query).bind(conn);
 
 app.get('/api/data', function(req, res){
 	const d = req.query['date'];
+	const s1 = "select * from cal";
+	const s2 = d ? " where date between date_add(?, interval -1 month) and date_add(?, interval 2 month)" : "";
+	const s3 = " order by date"
 	let f = async() => {
 		try {
-			let rows = await query("select * from cal where date between date_add(?, interval -1 month) and date_add(?, interval 2 month)",[d,d]);
+			let rows = await query(s1+s2+s3, [d,d]);
 			res.status(200).json(rows);
 		} catch(error) {
             console.error(error);

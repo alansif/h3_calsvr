@@ -1,0 +1,1 @@
+exports.clipath = "path.resolve('../h3_caladm/dist'))";

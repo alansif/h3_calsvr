@@ -1,3 +1,22 @@
+console.oldlog = console.log;
+console.olderror = console.error;
+console.oldtrace = console.trace;
+
+console.log = function() {
+    process.stdout.write((new Date()).toLocaleString() + ' - ');
+    console.oldlog.apply(console, arguments);
+}
+
+console.error = function() {
+    process.stderr.write((new Date()).toLocaleString() + ' - ');
+    console.olderror.apply(console, arguments);
+}
+
+console.trace = function() {
+    process.stderr.write((new Date()).toLocaleString() + ' - ');
+    console.oldtrace.apply(console, arguments);
+}
+
 const util = require("util");
 const path = require("path");
 const express = require("express");
@@ -60,6 +79,21 @@ app.post('/api/data', function(req, res){
 	let f = async() => {
 		try {
 			let rows = await query(`replace into cal(date,t_used,t_avl,p_used,p_avl,z_used,z_avl) values(?,?,?,?,?,?,?)`,[d,t0,t1,p0,p1,z0,z1]);
+			res.status(200).json(rows);
+		} catch(error) {
+            console.error(error);
+            res.status(500).end();
+        }
+	};
+	f();
+});
+
+app.post('/api/events', function(req, res){
+	const d = req.body['date'];
+	const es = req.body['events'];
+	let f = async() => {
+		try {
+			let rows = await query("update cal set events = ? where date = ?", [JSON.stringify(es), d]);
 			res.status(200).json(rows);
 		} catch(error) {
             console.error(error);

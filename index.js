@@ -76,9 +76,11 @@ app.post('/api/data', function(req, res){
 	const p1 = req.body['p1'] || 0;
 	const z0 = req.body['z0'] || 0;
 	const z1 = req.body['z1'] || 0;
+	const sqlstr = "insert into cal(date,t_used,t_avl,p_used,p_avl,z_used,z_avl) values(?,?,?,?,?,?,?)"
+		+ " ON DUPLICATE KEY UPDATE t_used=?,t_avl=?,p_used=?,p_avl=?,z_used=?,z_avl=?";
 	let f = async() => {
 		try {
-			let rows = await query(`replace into cal(date,t_used,t_avl,p_used,p_avl,z_used,z_avl) values(?,?,?,?,?,?,?)`,[d,t0,t1,p0,p1,z0,z1]);
+			let rows = await query(sqlstr,[d,t0,t1,p0,p1,z0,z1,t0,t1,p0,p1,z0,z1]);
 			res.status(200).json(rows);
 		} catch(error) {
             console.error(error);

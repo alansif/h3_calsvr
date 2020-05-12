@@ -78,9 +78,11 @@ app.post('/api/data', function(req, res){
 	const z1 = req.body['z1'] || 0;
 	const sqlstr = "insert into cal(date,t_used,t_avl,p_used,p_avl,z_used,z_avl) values(?,?,?,?,?,?,?)"
 		+ " ON DUPLICATE KEY UPDATE t_used=?,t_avl=?,p_used=?,p_avl=?,z_used=?,z_avl=?";
+	const desc = `${d}数据更新为t_used=${t0},t_avl=${t1},p_used=${p0},p_avl=${p1},z_used=${z0},z_avl=${z1}`;
 	let f = async() => {
 		try {
 			let rows = await query(sqlstr,[d,t0,t1,p0,p1,z0,z1,t0,t1,p0,p1,z0,z1]);
+			await query("insert into logs(description) values(?)",[desc]);
 			res.status(200).json(rows);
 		} catch(error) {
             console.error(error);
@@ -93,9 +95,27 @@ app.post('/api/data', function(req, res){
 app.post('/api/events', function(req, res){
 	const d = req.body['date'];
 	const es = req.body['events'];
+	const eslog = es.map(x => {let y = Object.assign({},x); delete y.color; return y;});
+	const logstr = JSON.stringify(eslog);
+	const desc = `${d}日程更新为${logstr}`;
 	let f = async() => {
 		try {
 			let rows = await query("update cal set events = ? where date = ?", [JSON.stringify(es), d]);
+			await query("insert into logs(description) values(?)",[desc]);
+			res.status(200).json(rows);
+		} catch(error) {
+            console.error(error);
+            res.status(500).end();
+        }
+	};
+	f();
+});
+
+app.get('/api/logs', function(req, res){
+	const s1 = "select optime,description from logs order by optime desc";
+	let f = async() => {
+		try {
+			let rows = await query(s1);
 			res.status(200).json(rows);
 		} catch(error) {
             console.error(error);

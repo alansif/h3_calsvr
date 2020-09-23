@@ -76,12 +76,14 @@ app.post('/api/data', function(req, res){
 	const p1 = req.body['p1'] || 0;
 	const z0 = req.body['z0'] || 0;
 	const z1 = req.body['z1'] || 0;
-	const sqlstr = "insert into cal(date,t_used,t_avl,p_used,p_avl,z_used,z_avl) values(?,?,?,?,?,?,?)"
-		+ " ON DUPLICATE KEY UPDATE t_used=?,t_avl=?,p_used=?,p_avl=?,z_used=?,z_avl=?";
-	const desc = `${d}数据更新为t_used=${t0},t_avl=${t1},p_used=${p0},p_avl=${p1},z_used=${z0},z_avl=${z1}`;
+	const h0 = req.body['h0'] || 0;
+	const h1 = req.body['h1'] || 0;
+	const sqlstr = "insert into cal(date,t_used,t_avl,p_used,p_avl,z_used,z_avl,h_used,h_avl) values(?,?,?,?,?,?,?,?,?)"
+		+ " ON DUPLICATE KEY UPDATE t_used=?,t_avl=?,p_used=?,p_avl=?,z_used=?,z_avl=?,h_used=?,h_avl=?";
+	const desc = `${d}数据更新为t_used=${t0},t_avl=${t1},p_used=${p0},p_avl=${p1},z_used=${z0},z_avl=${z1},h_used=${h0},h_avl=${h1}`;
 	let f = async() => {
 		try {
-			let rows = await query(sqlstr,[d,t0,t1,p0,p1,z0,z1,t0,t1,p0,p1,z0,z1]);
+			let rows = await query(sqlstr,[d,t0,t1,p0,p1,z0,z1,h0,h1,t0,t1,p0,p1,z0,z1,h0,h1]);
 			await query("insert into logs(description) values(?)",[desc]);
 			res.status(200).json(rows);
 		} catch(error) {
